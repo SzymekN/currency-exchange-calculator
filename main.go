@@ -5,16 +5,10 @@ import (
 	"log"
 	"strconv"
 
-	calculator "github.com/SzymekN/currency-exchange-calculator/pkg/"
+	calculator "github.com/SzymekN/currency-exchange-calculator/pkg/calculator"
 )
 
 func main() {
-
-	// 	W przypadku braku danych dla prawidłowo określonego zakresu czasowego zwracany jest komunikat 404 Not Found
-
-	// W przypadku zadania nieprawidłowo sformułowanych zapytań serwis zwraca komunikat 400 Bad Request
-
-	// W przypadku zapytania przekraczającego limit zwracanych danych serwis zwróci komunikat 400 Bad Request - Przekroczony limit
 
 	for {
 		mid, err := calculator.GetCurrentGBPRate()

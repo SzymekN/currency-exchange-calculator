@@ -25,6 +25,10 @@ func (d DefaultHttpGetter) Get(url string) (resp *http.Response, err error) {
 
 func checkResponseCorrectness(wantedCurrencyCode string, resp model.NBPResponse) error {
 
+	if resp.Rates == nil {
+		return errors.New("No values received")
+	}
+
 	if resp.Rates[0].Mid == 0 {
 		return errors.New("Invalid exchange value received")
 	}
@@ -38,15 +42,23 @@ func checkResponseCorrectness(wantedCurrencyCode string, resp model.NBPResponse)
 
 func makeApiRequest(h HttpGetter, url string) ([]byte, error) {
 	resp, err := h.Get(url)
-	respCode := resp.StatusCode
-	fmt.Println(respCode)
+	fmt.Println(resp)
+	// fmt.Println(err)
+
 	defer resp.Body.Close()
 
-	//place to handle error responses 404 etc
 	if err != nil {
-		fmt.Println(respCode)
-		fmt.Println(resp.StatusCode)
 		return nil, err
+	}
+
+	// to trigger enter invalid currency code
+	if resp.StatusCode == 404 {
+		return nil, errors.New("Data not found")
+	}
+
+	// to trigger - enter wrong date in url
+	if resp.StatusCode == 400 {
+		return nil, errors.New("Bad request made")
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -85,15 +97,15 @@ func GetCurrentGBPRate() (float64, error) {
 
 }
 
-func CalculateSentAmount(sentAmount, rate float64) float64 {
-	return sentAmount * rate
+func CalculateSentAmount(receivedAmount, rate float64) float64 {
+	return receivedAmount * rate
 }
 
-func CalculateReceivedAmount(receivedAmount, rate float64) (float64, error) {
+func CalculateReceivedAmount(sentAmount, rate float64) (float64, error) {
 	if rate == 0 {
 		return 0, errors.New("Division by 0 error")
 	}
 
-	return receivedAmount / rate, nil
+	return sentAmount / rate, nil
 
 }
