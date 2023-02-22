@@ -1,4 +1,4 @@
-package connection
+package calculator
 
 import (
 	"encoding/json"
@@ -6,16 +6,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/SzymekN/currency-exchange-calculator/model"
 )
 
-func checkResponseCorrectness(resp model.nbplResponse) error {
+func checkResponseCorrectness(resp model.NbplResponse) error {
 	if resp.Code != "GBP" || resp.Rates[0].Mid == 0 {
 		return errors.New("Error retrieving currency exchange data")
 	}
 	return nil
 }
 
-func getCurrentGBPRate() (*nbplResponse, error) {
+func getCurrentGBPRate() (*model.NbplResponse, error) {
 	resp, err := http.Get("http://api.nbp.pl/api/exchangerates/rates/a/gbp/lasst/?format=json")
 	respCode := resp.StatusCode
 	fmt.Println(respCode)
@@ -33,7 +35,7 @@ func getCurrentGBPRate() (*nbplResponse, error) {
 		return nil, err
 	}
 
-	jsonBody := &nbplResponse{}
+	jsonBody := &model.NbplResponse{}
 	err = json.Unmarshal(body, jsonBody)
 
 	// fmt.Println(string(body))

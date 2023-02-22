@@ -15,7 +15,7 @@ func main() {
 	// W przypadku zapytania przekraczającego limit zwracanych danych serwis zwróci komunikat 400 Bad Request - Przekroczony limit
 
 	for {
-		resp, err := getCurrentGBPRate()
+		resp, err := calculator.getCurrentGBPRate()
 
 		if err != nil {
 			log.Fatal(err)

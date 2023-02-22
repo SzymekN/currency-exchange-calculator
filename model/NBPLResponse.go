@@ -1,14 +1,14 @@
 package model
 
-type nbplRates struct {
+type NbplRates struct {
 	No            string
 	EffectiveDate string
 	Mid           float64
 }
 
-type nbplResponse struct {
+type NbplResponse struct {
 	Table    string
 	Currency string
 	Code     string
-	Rates    []nbplRates
+	Rates    []NbplRates
 }

@@ -1,3 +1,3 @@
-module currency_exchange
+module github.com/SzymekN/currency-exchange-calculator
 
 go 1.19
