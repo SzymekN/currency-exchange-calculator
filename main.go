@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+
+	calculator "github.com/SzymekN/currency-exchange-calculator/pkg/"
 )
 
 func main() {
@@ -15,13 +17,11 @@ func main() {
 	// W przypadku zapytania przekraczającego limit zwracanych danych serwis zwróci komunikat 400 Bad Request - Przekroczony limit
 
 	for {
-		resp, err := calculator.getCurrentGBPRate()
+		mid, err := calculator.GetCurrentGBPRate()
 
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		mid := resp.Rates[0].Mid
 
 		midStr := fmt.Sprintf("%f", mid)
 
@@ -47,7 +47,13 @@ func main() {
 				continue
 			}
 
-			fmt.Println("They will receive: " + strconv.FormatFloat(value*mid, 'f', -1, 64) + "GBP")
+			v, err := calculator.CalculateReceivedAmount(value, mid)
+
+			if err != nil {
+				fmt.Println("Could not calculate how much to send, continuing")
+			}
+
+			fmt.Println("They will receive: " + strconv.FormatFloat(v, 'f', -1, 64) + "GBP")
 
 		case 2:
 			fmt.Print("Enter amount of GBP you want to get: ")
@@ -58,7 +64,9 @@ func main() {
 				continue
 			}
 
-			fmt.Println("You will have to send: " + strconv.FormatFloat(value/mid, 'f', -1, 64) + "PLN")
+			v := calculator.CalculateSentAmount(value, mid)
+
+			fmt.Println("You will have to send: " + strconv.FormatFloat(v, 'f', -1, 64) + "PLN")
 
 		default:
 			fmt.Println("Invalid choice")
