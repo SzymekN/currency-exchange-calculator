@@ -3,38 +3,32 @@ package calculator
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"net/http"
 
 	"github.com/SzymekN/currency-exchange-calculator/model"
 )
 
-const gbpDefaultURL = "http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/?format=json"
+const GBPDefaultURL = "http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/?format=json"
 
-type HttpGetter interface {
-	Get(url string) (resp *http.Response, err error)
-}
-
-type DefaultHttpGetter struct {
-}
-
-func (d DefaultHttpGetter) Get(url string) (resp *http.Response, err error) {
-	return http.Get(url)
-}
+var NoValuesReceivedErr = errors.New("No values received")
+var InvalidExchangeValueErr = errors.New("Invalid exchange value received")
+var InvalidCurrencyReceivedErr = errors.New("Invalid currency received")
+var NotFoundErr = errors.New("Not found")
+var BadRequestErr = errors.New("Bad request made")
+var DivisionBy0Err = errors.New("Division by 0 error")
 
 func checkResponseCorrectness(wantedCurrencyCode string, resp model.NBPResponse) error {
 
 	if resp.Rates == nil {
-		return errors.New("No values received")
+		return NoValuesReceivedErr
 	}
 
 	if resp.Rates[0].Mid == 0 {
-		return errors.New("Invalid exchange value received")
+		return InvalidExchangeValueErr
 	}
 
 	if resp.Code != wantedCurrencyCode {
-		return errors.New("Invalid currency received")
+		return InvalidCurrencyReceivedErr
 	}
 
 	return nil
@@ -42,23 +36,21 @@ func checkResponseCorrectness(wantedCurrencyCode string, resp model.NBPResponse)
 
 func makeApiRequest(h HttpGetter, url string) ([]byte, error) {
 	resp, err := h.Get(url)
-	fmt.Println(resp)
-	// fmt.Println(err)
-
-	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
 
+	defer resp.Body.Close()
+
 	// to trigger enter invalid currency code
 	if resp.StatusCode == 404 {
-		return nil, errors.New("Data not found")
+		return nil, NotFoundErr
 	}
 
 	// to trigger - enter wrong date in url
 	if resp.StatusCode == 400 {
-		return nil, errors.New("Bad request made")
+		return nil, BadRequestErr
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -71,9 +63,8 @@ func makeApiRequest(h HttpGetter, url string) ([]byte, error) {
 
 }
 
-func GetCurrentGBPRate() (float64, error) {
-	d := DefaultHttpGetter{}
-	body, err := makeApiRequest(d, gbpDefaultURL)
+func GetCurrentRate(d HttpGetter, currency, url string) (float64, error) {
+	body, err := makeApiRequest(d, url)
 
 	if err != nil {
 		return 0, err
@@ -82,13 +73,11 @@ func GetCurrentGBPRate() (float64, error) {
 	jsonBody := &model.NBPResponse{}
 	err = json.Unmarshal(body, jsonBody)
 
-	// fmt.Println(string(body))
-
 	if err != nil {
 		return 0, err
 	}
 
-	err = checkResponseCorrectness("GBP", *jsonBody)
+	err = checkResponseCorrectness(currency, *jsonBody)
 	if err != nil {
 		return 0, err
 	}
@@ -103,7 +92,7 @@ func CalculateSentAmount(receivedAmount, rate float64) float64 {
 
 func CalculateReceivedAmount(sentAmount, rate float64) (float64, error) {
 	if rate == 0 {
-		return 0, errors.New("Division by 0 error")
+		return 0, DivisionBy0Err
 	}
 
 	return sentAmount / rate, nil

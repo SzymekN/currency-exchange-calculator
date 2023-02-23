@@ -10,8 +10,9 @@ import (
 
 func main() {
 
+	d := calculator.DefaultHttpGetter{}
 	for {
-		mid, err := calculator.GetCurrentGBPRate()
+		mid, err := calculator.GetCurrentRate(d, "GBP", calculator.GBPDefaultURL)
 
 		if err != nil {
 			log.Fatal(err)
