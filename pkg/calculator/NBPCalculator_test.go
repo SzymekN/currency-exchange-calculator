@@ -266,7 +266,7 @@ func TestGetCurrentRateIncorrectResponseError(t *testing.T) {
 	}
 }
 
-func TestCalculateSentAmount(t *testing.T) {
+func TestCalculateReceivedAmount(t *testing.T) {
 	type args struct {
 		receivedAmount float64
 		rate           float64
@@ -294,14 +294,14 @@ func TestCalculateSentAmount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CalculateSentAmount(tt.args.receivedAmount, tt.args.rate); got != tt.want {
-				t.Errorf("CalculateSentAmount() = %v, want %v", got, tt.want)
+			if got := CalculateReceivedAmount(tt.args.receivedAmount, tt.args.rate); got != tt.want {
+				t.Errorf("CalculateReceivedAmount() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestCalculateReceivedAmount(t *testing.T) {
+func TestCalculateSentAmount(t *testing.T) {
 	type args struct {
 		sentAmount float64
 		rate       float64
@@ -332,13 +332,13 @@ func TestCalculateReceivedAmount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CalculateReceivedAmount(tt.args.sentAmount, tt.args.rate)
+			got, err := CalculateSentAmount(tt.args.sentAmount, tt.args.rate)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("CalculateReceivedAmount() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("CalculateSentAmount() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("CalculateReceivedAmount() = %v, want %v", got, tt.want)
+				t.Errorf("CalculateSentAmount() = %v, want %v", got, tt.want)
 			}
 		})
 	}
