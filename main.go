@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -27,6 +28,7 @@ func main() {
 		},
 	})
 
+	fmt.Println("Server listening on localhost:8000")
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal(err)
 	}

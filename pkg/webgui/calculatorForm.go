@@ -20,6 +20,9 @@ type CalculatorForm struct {
 func (cf *CalculatorForm) Render() app.UI {
 	cf.updateRate()
 	return app.Div().ID("wrapper").Body(
+		app.Div().ID("title").Body(
+			app.H1().Text("Currency Exchange Calculator"),
+		),
 		app.Div().ID("calc_form").Body(
 			app.Form().Body(
 				app.Label().
