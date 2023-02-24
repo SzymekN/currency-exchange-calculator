@@ -20,8 +20,8 @@ func main() {
 
 		midStr := fmt.Sprintf("%f", mid)
 
-		fmt.Println("Current exchange rate: 1GBP = " + midStr + "PLN")
-		fmt.Println("\nChoose option:\n1. Calculate from PLN to GBP\n2. Calculate from GBP to PLN")
+		fmt.Println("\nCurrent exchange rate: 1GBP = " + midStr + "PLN")
+		fmt.Println("\nChoose option:\n1. Calculate from GBP to PLN\n2. Calculate from PLN to GBP")
 
 		choice, value := 0, 0.0
 		_, err = fmt.Scanln(&choice)
@@ -33,7 +33,7 @@ func main() {
 
 		switch choice {
 		case 1:
-			fmt.Print("Enter amount of PLN you want to send: ")
+			fmt.Print("Enter amount of GBP you want to send: ")
 			_, err = fmt.Scanln(&value)
 
 			if err != nil {
@@ -42,16 +42,12 @@ func main() {
 				continue
 			}
 
-			v, err := calculator.CalculateReceivedAmount(value, mid)
+			v := calculator.CalculateReceivedAmount(value, mid)
 
-			if err != nil {
-				fmt.Println("Could not calculate how much to send, continuing")
-			}
-
-			fmt.Println("They will receive: " + strconv.FormatFloat(v, 'f', -1, 64) + "GBP")
+			fmt.Println("They will receive: " + strconv.FormatFloat(v, 'f', 2, 64) + "PLN")
 
 		case 2:
-			fmt.Print("Enter amount of GBP you want to get: ")
+			fmt.Print("Enter amount of PLN you want to get: ")
 			_, err = fmt.Scanln(&value)
 
 			if err != nil {
@@ -59,9 +55,13 @@ func main() {
 				continue
 			}
 
-			v := calculator.CalculateSentAmount(value, mid)
+			v, err := calculator.CalculateSentAmount(value, mid)
 
-			fmt.Println("You will have to send: " + strconv.FormatFloat(v, 'f', -1, 64) + "PLN")
+			if err != nil {
+				fmt.Println("Could not calculate how much to send, continuing")
+			}
+
+			fmt.Println("You will have to send: " + strconv.FormatFloat(v, 'f', 2, 64) + "GBP")
 
 		default:
 			fmt.Println("Invalid choice")
