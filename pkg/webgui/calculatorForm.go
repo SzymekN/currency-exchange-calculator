@@ -8,7 +8,7 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
-type calculatorForm struct {
+type CalculatorForm struct {
 	app.Compo
 
 	PLN     string
@@ -17,7 +17,7 @@ type calculatorForm struct {
 	Rate    float64
 }
 
-func (cf *calculatorForm) Render() app.UI {
+func (cf *CalculatorForm) Render() app.UI {
 	cf.updateRate()
 	return app.Div().ID("wrapper").Body(
 		app.Div().ID("calc_form").Body(
@@ -99,7 +99,7 @@ func (cf *calculatorForm) Render() app.UI {
 	)
 }
 
-func (cf *calculatorForm) updateRate() {
+func (cf *CalculatorForm) updateRate() {
 	v, err := calculator.GetCurrentRate(calculator.DefaultHttpGetter{}, "GBP", calculator.GBPDefaultURL)
 
 	if err != nil || v == 0 {
@@ -117,7 +117,7 @@ func formatInput(val float64, digits int) string {
 	return strconv.FormatFloat(val, 'f', digits, 64)
 }
 
-func parseInput(cf *calculatorForm, ctx app.Context) float64 {
+func parseInput(cf *CalculatorForm, ctx app.Context) float64 {
 	if tmpVal, err := strconv.ParseFloat(ctx.JSSrc().Get("value").String(), 64); err != nil || tmpVal < 0 {
 		fmt.Println(err)
 		cf.GBP = "0,00"

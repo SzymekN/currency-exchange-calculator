@@ -14,9 +14,14 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+const mid = 5.0
 const gbpInvalidCurrencyURL = "http://api.nbp.pl/api/exchangerates/rates/a/gabp/last/?format=json"
 const gbpInvalidDateURL = "http://api.nbp.pl/api/exchangerates/rates/a/gbp/3023-01-01/?format=json"
 const InvalidURL = ""
+
+var sampleResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid":` + strconv.FormatFloat(mid, 'f', -1, 64) + `}]}`
+
+const invalidResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid": "5.0"}]}` //string instead of float given
 
 func Test_checkResponseCorrectness(t *testing.T) {
 	type args struct {
@@ -179,11 +184,6 @@ func Test_makeApiRequest_respBodyError(t *testing.T) {
 		t.Fatalf("want: %v, got: %v\n", fake.SliceEmptyError, err)
 	}
 }
-
-const mid = 5.0
-
-var sampleResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid":` + strconv.FormatFloat(mid, 'f', -1, 64) + `}]}`
-var invalidResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid": "5.0"}]}` //string instead of float given
 
 func TestGetCurrentRatePositive(t *testing.T) {
 	ctrl := gomock.NewController(t)
