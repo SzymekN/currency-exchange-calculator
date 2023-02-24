@@ -5,6 +5,18 @@ App has gui and command line version:
 * gui version available on [main branch](https://github.com/SzymekN/currency-exchange-calculator)
 * Command line version available on [no_gui_branch](https://github.com/SzymekN/currency-exchange-calculator/tree/no_gui_version)
 
+## Table of contents
+- [Currency exchange calculator](#currency-exchange-calculator)
+  - [Table of contents](#table-of-contents)
+  - [Technologies](#technologies)
+  - [How to run](#how-to-run)
+    - [Non gui version](#non-gui-version)
+    - [Gui version](#gui-version)
+  - [How to use](#how-to-use)
+    - [gui version](#gui-version-1)
+    - [Non gui version](#non-gui-version-1)
+
+
 ## Technologies  
 * [GO v1.20](https://go.dev/) - main programming language
   * [Go-app](https://go-app.dev/) - package used to build progressive web apps (PWA)
@@ -25,7 +37,7 @@ If you want to make changes in code and run it again you have to first build **a
 * **GOARCH=wasm GOOS=js go build -o web/app.wasm** - on Linux
 * **cmd /v /c "set GOOS=js&& set GOARCH=wasm&& go build -o web/app.wasm"** - on Windows
 
-After that you can build server using **go build -o main.exe**. After that you can run the program as described at the beginning of this section (runnin main.exe and accessing it through http://localhost:8000/).
+After that you can build server using **go build -o main.exe**. After that you can run the program as described at the beginning of this section (running main.exe and accessing it through http://localhost:8000/).
 
 In main directory there is also script named **build.bat**, that builds client and server artifacts - **this script works only on Windows.**
 
