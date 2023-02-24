@@ -1,7 +1,7 @@
 # Currency exchange calculator  
 
 Currency exchange calculator written in GO, uses data from [NBP API](http://api.nbp.pl/). Current version converts values between PLN and GBP.  
-App has gui and command line version:
+App has gui and command line versions:
 * gui version available on [main branch](https://github.com/SzymekN/currency-exchange-calculator)
 * Command line version available on [no_gui_branch](https://github.com/SzymekN/currency-exchange-calculator/tree/no_gui_version)
 
@@ -27,13 +27,13 @@ In order to use either of available versions you have to download and install [G
 
 ### Non gui version
 
-To run the program all you have to do is to download the repo or clone it. To run the program you can use **main.exe** located in main directory or if you want to rebuild and run the program you can execute **go run .** in command line opened in main directory of the program.
+To run the program all you have to do is to download the repo or clone it. To run the program you can use **main.exe** located in main directory or if you want to rebuild and run the program you can execute **go run .** in command line opened in main directory of the project.
 
 ### Gui version
 
-First step is the same - download the repo or clone it. Now you can used compiled binary **main.exe** to run the server and then you can access the website through your web browser on address http://localhost:8000/.
+First step is the same - download the repo or clone it. Now you can use compiled binary **main.exe** to run the server and then you can access the website through your web browser on address http://localhost:8000/.
 
-If you want to make changes in code and run it again you have to first build **app.wasm** artifact (static client) using either of the commands below:
+If you want to make changes in code and run it again you have to first build **app.wasm** artifact (static client) using one of the commands below:
 * **GOARCH=wasm GOOS=js go build -o web/app.wasm** - on Linux
 * **cmd /v /c "set GOOS=js&& set GOARCH=wasm&& go build -o web/app.wasm"** - on Windows
 
@@ -43,7 +43,7 @@ In main directory there is also script named **build.bat**, that builds client a
 
 ## How to use
 ### gui version 
-After accessing the page you should see website like this below. Typing in either of input fields will be detected and calculated values (send/received) will be displayed in other input field.  
+After accessing the page you should see website like this below. Typing in either of input fields will be detected and calculated values (send/receive) will be displayed in other input field.  
 ![image](https://user-images.githubusercontent.com/83112762/221240612-fa9da276-7d74-4a2b-944d-c7a67855987f.png)
 
 Send(GBP) to receive(PLN)  
