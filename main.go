@@ -3,71 +3,153 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 
-	calculator "github.com/SzymekN/currency-exchange-calculator/pkg/calculator"
+	"github.com/SzymekN/currency-exchange-calculator/pkg/calculator"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
+
+type calculatorForm struct {
+	app.Compo
+
+	PLN     string
+	GBP     string
+	Rate    float64
+	RateStr string
+}
+
+func (cf *calculatorForm) Render() app.UI {
+	cf.updateRate()
+	return app.Div().ID("wrapper").Body(
+		app.Div().ID("calc_form").Body(
+			app.Form().Body(
+				app.Label().
+					Text("You send"),
+				app.Input().
+					Class("amountInput").
+					ID("receivedInput").
+					Type("text").
+					Value(cf.GBP).
+					Placeholder("0.00").
+					// OnFocus(cf.updateRate).
+					OnInput(func(ctx app.Context, e app.Event) {
+						if v := parseInput(cf, ctx); v != 0 {
+							cf.PLN = formatString(v * 2)
+						}
+					}).
+					OnChange(cf.ValueTo(&cf.GBP)).
+					On("focusout", func(ctx app.Context, e app.Event) {
+						if v := parseInput(cf, ctx); v != 0 {
+							cf.GBP = formatString(v)
+						}
+					}),
+				app.Input().
+					Class("disabledInput").
+					Disabled(true).
+					Value("GBP"),
+				app.Img().
+					Alt("UK flag").
+					Src(`/web/uk_flag.png`),
+				app.Label().
+					Text("They receive").
+					Style("clear", "both"),
+				app.Input().
+					Class("amountInput").
+					ID("sentInput").
+					Type("text").
+					Value(cf.PLN).
+					Placeholder("0.00").
+					// OnFocus(cf.updateRate).
+					OnInput(func(ctx app.Context, e app.Event) {
+						if v := parseInput(cf, ctx); v != 0 {
+							cf.GBP = formatString(v / 2)
+						}
+					}).
+					OnChange(cf.ValueTo(&cf.PLN)).
+					On("focusout", func(ctx app.Context, e app.Event) {
+						if v := parseInput(cf, ctx); v != 0 {
+							cf.PLN = formatString(v)
+						}
+					}),
+				app.Input().
+					Class("disabledInput").
+					Disabled(true).
+					Value("PLN"),
+				app.Img().
+					Alt("PL flag").
+					Src(`/web/pol_flag.png`),
+				app.Label().
+					Text("1PLN = "),
+				app.Label().
+					Text(cf.RateStr).
+					Style("font-weight", "bold"),
+			),
+		),
+	)
+}
+
+func (cf *calculatorForm) updateRate() {
+	v, err := calculator.GetCurrentRate(calculator.DefaultHttpGetter{}, "GBP", calculator.GBPDefaultURL)
+
+	if err != nil || v == 0 {
+		cf.RateStr = "0.00"
+		cf.Rate = 0
+		return
+	}
+
+	cf.Rate = v
+	cf.RateStr = formatString(v)
+
+}
+
+func formatString(val float64) string {
+	return strconv.FormatFloat(val, 'f', 2, 64)
+}
+
+func parseInput(cf *calculatorForm, ctx app.Context) float64 {
+	if tmpVal, err := strconv.ParseFloat(ctx.JSSrc().Get("value").String(), 64); err != nil || tmpVal < 0 {
+		fmt.Println(err)
+		cf.GBP = "0.00"
+		cf.PLN = "0.00"
+		return 0
+	} else {
+		return tmpVal
+	}
+
+}
+
+func (cf *calculatorForm) countReceived(ctx app.Context, e app.Event) {
+
+	if v := parseInput(cf, ctx); v != 0 {
+		cf.PLN = formatString(v * 2)
+	}
+
+}
+
+func (cf *calculatorForm) countSent(ctx app.Context, e app.Event) {
+
+	if v := parseInput(cf, ctx); v != 0 {
+		cf.GBP = formatString(v / 2)
+	}
+
+}
 
 func main() {
 
-	d := calculator.DefaultHttpGetter{}
-	for {
-		mid, err := calculator.GetCurrentRate(d, "GBP", calculator.GBPDefaultURL)
+	app.Route("/", &calculatorForm{})
 
-		if err != nil {
-			log.Fatal(err)
-		}
+	app.RunWhenOnBrowser()
 
-		midStr := fmt.Sprintf("%f", mid)
+	http.Handle("/", &app.Handler{
+		Name:        "Hello",
+		Description: "An Hello World! example",
+		Styles: []string{
+			`/web/style.css`,
+		},
+	})
 
-		fmt.Println("Current exchange rate: 1GBP = " + midStr + "PLN")
-		fmt.Println("\nChoose option:\n1. Calculate from PLN to GBP\n2. Calculate from GBP to PLN")
-
-		choice, value := 0, 0.0
-		_, err = fmt.Scanln(&choice)
-
-		if err != nil || (choice != 1 && choice != 2) {
-			fmt.Println("Invalid choice")
-			continue
-		}
-
-		switch choice {
-		case 1:
-			fmt.Print("Enter amount of PLN you want to send: ")
-			_, err = fmt.Scanln(&value)
-
-			if err != nil {
-				fmt.Println(err.Error())
-				fmt.Println("Invalid input")
-				continue
-			}
-
-			v, err := calculator.CalculateReceivedAmount(value, mid)
-
-			if err != nil {
-				fmt.Println("Could not calculate how much to send, continuing")
-			}
-
-			fmt.Println("They will receive: " + strconv.FormatFloat(v, 'f', -1, 64) + "GBP")
-
-		case 2:
-			fmt.Print("Enter amount of GBP you want to get: ")
-			_, err = fmt.Scanln(&value)
-
-			if err != nil {
-				fmt.Println("Invalid input")
-				continue
-			}
-
-			v := calculator.CalculateSentAmount(value, mid)
-
-			fmt.Println("You will have to send: " + strconv.FormatFloat(v, 'f', -1, 64) + "PLN")
-
-		default:
-			fmt.Println("Invalid choice")
-
-		}
-
+	if err := http.ListenAndServe(":8000", nil); err != nil {
+		log.Fatal(err)
 	}
-
 }
