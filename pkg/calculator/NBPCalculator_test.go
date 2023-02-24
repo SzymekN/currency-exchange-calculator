@@ -14,9 +14,14 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+const mid = 5.0
 const gbpInvalidCurrencyURL = "http://api.nbp.pl/api/exchangerates/rates/a/gabp/last/?format=json"
 const gbpInvalidDateURL = "http://api.nbp.pl/api/exchangerates/rates/a/gbp/3023-01-01/?format=json"
 const InvalidURL = ""
+
+var sampleResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid":` + strconv.FormatFloat(mid, 'f', -1, 64) + `}]}`
+
+const invalidResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid": "5.0"}]}` //string instead of float given
 
 func Test_checkResponseCorrectness(t *testing.T) {
 	type args struct {
@@ -180,11 +185,6 @@ func Test_makeApiRequest_respBodyError(t *testing.T) {
 	}
 }
 
-const mid = 5.0
-
-var sampleResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid":` + strconv.FormatFloat(mid, 'f', -1, 64) + `}]}`
-var invalidResponseBody = `{"table":"A","currency":"funt szterling","code":"GBP","rates":[{"no":"037/A/NBP/2023","effectiveDate":"2023-02-22","mid": "5.0"}]}` //string instead of float given
-
 func TestGetCurrentRatePositive(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
@@ -266,7 +266,7 @@ func TestGetCurrentRateIncorrectResponseError(t *testing.T) {
 	}
 }
 
-func TestCalculateSentAmount(t *testing.T) {
+func TestCalculateReceivedAmount(t *testing.T) {
 	type args struct {
 		receivedAmount float64
 		rate           float64
@@ -294,14 +294,14 @@ func TestCalculateSentAmount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CalculateSentAmount(tt.args.receivedAmount, tt.args.rate); got != tt.want {
-				t.Errorf("CalculateSentAmount() = %v, want %v", got, tt.want)
+			if got := CalculateReceivedAmount(tt.args.receivedAmount, tt.args.rate); got != tt.want {
+				t.Errorf("CalculateReceivedAmount() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestCalculateReceivedAmount(t *testing.T) {
+func TestCalculateSentAmount(t *testing.T) {
 	type args struct {
 		sentAmount float64
 		rate       float64
@@ -332,13 +332,13 @@ func TestCalculateReceivedAmount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CalculateReceivedAmount(tt.args.sentAmount, tt.args.rate)
+			got, err := CalculateSentAmount(tt.args.sentAmount, tt.args.rate)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("CalculateReceivedAmount() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("CalculateSentAmount() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("CalculateReceivedAmount() = %v, want %v", got, tt.want)
+				t.Errorf("CalculateSentAmount() = %v, want %v", got, tt.want)
 			}
 		})
 	}

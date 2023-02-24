@@ -86,15 +86,16 @@ func GetCurrentRate(d HttpGetter, currency, url string) (float64, error) {
 
 }
 
-func CalculateSentAmount(receivedAmount, rate float64) float64 {
-	return receivedAmount * rate
-}
-
-func CalculateReceivedAmount(sentAmount, rate float64) (float64, error) {
+func CalculateSentAmount(receivedAmount, rate float64) (float64, error) {
 	if rate == 0 {
 		return 0, DivisionBy0Err
 	}
 
-	return sentAmount / rate, nil
+	return receivedAmount / rate, nil
+
+}
+
+func CalculateReceivedAmount(sentAmount, rate float64) float64 {
+	return sentAmount * rate
 
 }
